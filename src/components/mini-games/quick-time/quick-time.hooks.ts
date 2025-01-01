@@ -43,12 +43,12 @@ export const quickTimeReducer: Reducer<QuickTimeState, QuickTimeActions> = (
 
       return {
         ...state,
-        ...{ inputSequence: newInputSequence },
+        inputSequence: newInputSequence,
         gameState: newGameState,
       }
     }
     case "reset":
-      return { ...state, count: 0 }
+      return { ...state, inputSequence: [], gameState: "PLAYING" }
   }
 }
 
@@ -57,7 +57,16 @@ export function useQuickTimeLogic(): QuickTimeState {
 
   useEffect(() => {
     function downHandler({ key }: KeyboardEvent) {
-      dispatch({ payload: key, type: "input" })
+      switch (key) {
+        case "Enter": {
+          dispatch({ type: "reset" })
+          break
+        }
+        default: {
+          dispatch({ payload: key, type: "input" })
+          break
+        }
+      }
     }
 
     window.addEventListener("keydown", downHandler)

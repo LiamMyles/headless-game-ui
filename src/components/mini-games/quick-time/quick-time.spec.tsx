@@ -145,6 +145,39 @@ describe("Quick Time Component", () => {
           expect(results.inputSequence).toEqual(state.inputSequence)
         })
       })
+      describe("Reset Action", () => {
+        it("should reset state to defaults", () => {
+          const inProgressState: QuickTimeState = {
+            sequenceToMatch: [
+              "ArrowDown",
+              "ArrowUp",
+              "ArrowRight",
+              "ArrowLeft",
+            ],
+            inputSequence: ["ArrowDown", "ArrowUp", "ArrowRight"],
+            gameState: "PLAYING",
+          }
+
+          const action: QuickTimeActions = {
+            type: "reset",
+          }
+
+          const results = quickTimeReducer(inProgressState, action)
+
+          const expectedDefaultState: QuickTimeState = {
+            sequenceToMatch: [
+              "ArrowDown",
+              "ArrowUp",
+              "ArrowRight",
+              "ArrowLeft",
+            ],
+            inputSequence: [],
+            gameState: "PLAYING",
+          }
+
+          expect(results).toEqual(expectedDefaultState)
+        })
+      })
     })
   })
 })
