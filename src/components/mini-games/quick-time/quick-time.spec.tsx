@@ -178,6 +178,36 @@ describe("Quick Time Component", () => {
           expect(results).toEqual(expectedDefaultState)
         })
       })
+      describe("Shuffle Action", () => {
+        it("should shuffle based on seed", () => {
+          const inProgressState: QuickTimeState = {
+            sequenceToMatch: [
+              "ArrowDown",
+              "ArrowUp",
+              "ArrowRight",
+              "ArrowLeft",
+            ],
+            inputSequence: [],
+            gameState: "PLAYING",
+          }
+
+          const action: QuickTimeActions = {
+            type: "shuffle",
+            payload: 42,
+          }
+
+          const results = quickTimeReducer(inProgressState, action)
+
+          const expectedShuffleResults = [
+            "ArrowUp",
+            "ArrowRight",
+            "ArrowDown",
+            "ArrowLeft",
+          ]
+
+          expect(results.sequenceToMatch).toEqual(expectedShuffleResults)
+        })
+      })
     })
   })
 })

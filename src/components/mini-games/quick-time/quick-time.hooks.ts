@@ -17,6 +17,7 @@ const initialState: QuickTimeState = {
 export type QuickTimeActions =
   | { type: "input"; payload: string }
   | { type: "reset" }
+  | { type: "shuffle"; payload: number }
 
 export const quickTimeReducer: Reducer<QuickTimeState, QuickTimeActions> = (
   state,
@@ -47,19 +48,51 @@ export const quickTimeReducer: Reducer<QuickTimeState, QuickTimeActions> = (
         gameState: newGameState,
       }
     }
-    case "reset":
+    case "reset": {
       return { ...state, inputSequence: [], gameState: "PLAYING" }
+    }
+    case "shuffle": {
+      // Seeded implementation of the Fisher-Yates Shuffle
+      const sequenceToShuffle = [...state.sequenceToMatch]
+
+      let chosenElement
+      let chosenIndex
+      let currentSeed = action.payload
+
+      for (let i = sequenceToShuffle.length; i; i--) {
+        const pseudoRandomNumber = Math.sin(currentSeed) * 10000
+        const randomNumber = pseudoRandomNumber - Math.floor(pseudoRandomNumber)
+
+        chosenIndex = Math.floor(randomNumber * i)
+        chosenElement = sequenceToShuffle[i - 1]
+
+        sequenceToShuffle[i - 1] = sequenceToShuffle[chosenIndex]
+        sequenceToShuffle[chosenIndex] = chosenElement
+
+        currentSeed++
+      }
+
+      return {
+        ...state,
+        sequenceToMatch: sequenceToShuffle,
+      }
+    }
   }
 }
 
 export function useQuickTimeLogic(): QuickTimeState {
   const [state, dispatch] = useReducer(quickTimeReducer, initialState)
+  const currentGameState = state.gameState
 
   useEffect(() => {
     function downHandler({ key }: KeyboardEvent) {
       switch (key) {
         case "Enter": {
           dispatch({ type: "reset" })
+          dispatch({
+            type: "shuffle",
+            payload: Math.floor(Math.random() * 100) + 1,
+          })
           break
         }
         default: {
@@ -75,5 +108,15 @@ export function useQuickTimeLogic(): QuickTimeState {
       window.removeEventListener("keydown", downHandler)
     }
   }, [])
+
+  useEffect(() => {
+    if (currentGameState === "PASS") {
+      dispatch({ type: "reset" })
+      dispatch({
+        type: "shuffle",
+        payload: Math.floor(Math.random() * 100) + 1,
+      })
+    }
+  }, [currentGameState])
   return state
 }
