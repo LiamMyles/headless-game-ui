@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 interface useTimerProps {
-  seconds: number
+  durationSeconds: number
   isRunning?: boolean
 }
 
@@ -11,45 +11,60 @@ interface useTimerReturn {
 }
 
 export function useTimer({
-  seconds,
+  durationSeconds,
   isRunning = true,
 }: useTimerProps): useTimerReturn {
   const [timerFinished, setTimerFinished] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(seconds * 1000)
-  const requestedAnimationId = useRef(0)
-  const timerStartTime = useRef<DOMHighResTimeStamp | null>(null)
-  const timeSinceLastUpdate = useRef<DOMHighResTimeStamp>(0)
+  const [timeLeft, setTimeLeft] = useState(durationSeconds * 1000)
 
-  useEffect(() => {
-    function timerCheck(lastTime: DOMHighResTimeStamp) {
-      if (lastTime >= timeSinceLastUpdate.current + 500) {
-        timeSinceLastUpdate.current = lastTime
-        const sum = Math.max(0, Math.round(1000 * seconds - lastTime))
+  const requestedAnimationId = useRef(0)
+  const timeMsSinceLastUpdate = useRef<DOMHighResTimeStamp>(0)
+  const totalElapsedTimeMs = useRef<DOMHighResTimeStamp>(0)
+  const durationMs = 1000 * durationSeconds
+
+  const timerCheck = useCallback(
+    (nowTimeMs: DOMHighResTimeStamp, firstRun: boolean) => {
+      if (firstRun) {
+        timeMsSinceLastUpdate.current = performance.now()
+      }
+      const elapsedTime = nowTimeMs - timeMsSinceLastUpdate.current
+
+      const shouldUpdateTimer = nowTimeMs >= timeMsSinceLastUpdate.current + 500
+
+      if (shouldUpdateTimer) {
+        totalElapsedTimeMs.current = elapsedTime + totalElapsedTimeMs.current
+        timeMsSinceLastUpdate.current = nowTimeMs
+        const sum = Math.max(
+          0,
+          Math.round(durationMs - totalElapsedTimeMs.current)
+        )
+
         setTimeLeft(sum)
+
+        if (totalElapsedTimeMs.current >= durationMs) {
+          setTimerFinished(true)
+        }
       }
 
-      if (
-        timerStartTime.current !== null &&
-        lastTime >= timerStartTime.current + 1000 * seconds
-      ) {
-        setTimerFinished(true)
-      } else {
+      if (totalElapsedTimeMs.current <= durationMs) {
         requestedAnimationId.current = requestAnimationFrame((now) => {
-          timerCheck(now)
+          timerCheck(now, false)
         })
       }
+    },
+    [durationMs]
+  )
+
+  useEffect(() => {
+    if (isRunning) {
+      timerCheck(performance.now(), true)
     }
 
-    if (timerStartTime.current === null && isRunning === true) {
-      timerStartTime.current = performance.now()
-      timerCheck(performance.now())
-    }
     return () => {
       cancelAnimationFrame(requestedAnimationId.current)
-      timerStartTime.current = null
-      timeSinceLastUpdate.current = 0
+      timeMsSinceLastUpdate.current = 0
     }
-  }, [seconds, isRunning])
+  }, [isRunning, timerCheck])
 
   return { isFinished: timerFinished, timeLeft: timeLeft }
 }
