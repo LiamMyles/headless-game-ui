@@ -1,14 +1,12 @@
 import {
   afterAll,
   afterEach,
-  beforeAll,
   beforeEach,
   describe,
   expect,
   it,
   vi,
 } from "vitest"
-import { configure } from "@testing-library/react"
 
 import { act, renderHook } from "@testing-library/react"
 
@@ -25,9 +23,6 @@ function getMockedRaf(): createMockRaf.Creator {
 }
 
 describe("Timer", () => {
-  beforeAll(() => {
-    configure({ reactStrictMode: true })
-  })
   describe("Hook", () => {
     beforeEach(() => {
       vi.useFakeTimers()

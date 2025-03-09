@@ -29,10 +29,9 @@ describe("mock-raf", () => {
       useGameLoop({ logicToLoop: mockCallback, speed: 100 })
     )
 
-    expect(cancelAnimationFrameMock).toBeCalledTimes(0)
+    expect(cancelAnimationFrameMock).toBeCalledTimes(1)
 
     await act(async () => {
-      mockedRaf.step()
       mockedRaf.step({ count: 5, time: 101 })
     })
 
@@ -41,7 +40,6 @@ describe("mock-raf", () => {
     })
 
     await act(async () => {
-      mockedRaf.step()
       mockedRaf.step({ count: 5, time: 101 })
     })
 
@@ -54,7 +52,6 @@ describe("mock-raf", () => {
 
     MockDate.set(10900)
     await act(async () => {
-      mockedRaf.step()
       mockedRaf.step({ count: 5, time: 101 })
     })
 
@@ -64,7 +61,6 @@ describe("mock-raf", () => {
     unmount()
 
     await act(async () => {
-      mockedRaf.step()
       mockedRaf.step({ count: 5, time: 101 })
     })
 
@@ -82,7 +78,6 @@ describe("mock-raf", () => {
     renderHook(() => useGameLoop({ logicToLoop: mockCallback, speed: 500 }))
 
     await act(async () => {
-      mockedRaf.step()
       mockedRaf.step({ count: 6, time: 255 })
     })
 
@@ -124,20 +119,24 @@ describe("mock-raf", () => {
     const { unmount } = renderHook(() =>
       useGameLoop({ logicToLoop: mockCallback, speed: 500 })
     )
-    await act(async () => {
-      mockedRaf.step()
-      mockedRaf.step({ count: 3, time: 501 })
+    expect(cancelAnimationFrameMock).toBeCalledTimes(1)
+
+    expect(mockCallback).toBeCalledTimes(0)
+
+    act(() => {
+      mockedRaf.step({ count: 2, time: 501 })
     })
+
+    expect(mockCallback).toBeCalledTimes(2)
 
     unmount()
 
-    expect(cancelAnimationFrameMock).toBeCalledTimes(1)
+    expect(cancelAnimationFrameMock).toBeCalledTimes(2)
 
     await act(async () => {
-      mockedRaf.step()
       mockedRaf.step({ count: 10, time: 501 })
     })
 
-    expect(mockCallback).toBeCalledTimes(3)
+    expect(mockCallback).toBeCalledTimes(2)
   })
 })

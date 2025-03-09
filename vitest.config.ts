@@ -10,6 +10,7 @@ export default mergeConfig(
       fakeTimers: {
         toFake: ["performance"],
       },
+      setupFiles: "./vitest.setup.ts",
     },
   })
 )

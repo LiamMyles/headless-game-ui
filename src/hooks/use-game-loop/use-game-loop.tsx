@@ -10,6 +10,7 @@ export const useGameLoop = ({ logicToLoop, speed }: UseGameLoop) => {
   const [playLoop, setPlayLoop] = useState(true)
   const requestedAnimationId = useRef(0)
   const startTime = useRef(0)
+  const isInitialRun = useRef(true)
 
   useEffect(() => {
     startTime.current = Date.now()
@@ -26,7 +27,10 @@ export const useGameLoop = ({ logicToLoop, speed }: UseGameLoop) => {
 
       let newLastRunTiming = lastRunTiming
 
-      if (currentTiming - lastRunTiming > speed) {
+      if (
+        currentTiming - lastRunTiming > speed ||
+        isInitialRun.current === true
+      ) {
         logicToLoop()
         newLastRunTiming = currentTiming
       }
@@ -38,15 +42,22 @@ export const useGameLoop = ({ logicToLoop, speed }: UseGameLoop) => {
           }
         )
       }
+
+      if (isInitialRun.current === true) {
+        isInitialRun.current = false
+      }
     }
 
     if (playLoop) {
-      requestAnimationFrame((newCurrentTiming) => {
-        gameLoop(newCurrentTiming, newCurrentTiming, playLoop)
-      })
+      requestedAnimationId.current = requestAnimationFrame(
+        (newCurrentTiming) => {
+          gameLoop(newCurrentTiming, newCurrentTiming, playLoop)
+        }
+      )
     }
 
     return () => {
+      isInitialRun.current = true
       cancelAnimationFrame(requestedAnimationId.current)
     }
   }, [logicToLoop, speed, playLoop])
