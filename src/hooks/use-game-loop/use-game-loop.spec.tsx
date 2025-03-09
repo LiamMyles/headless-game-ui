@@ -18,7 +18,7 @@ describe("mock-raf", () => {
     vi.restoreAllMocks()
   })
 
-  it("should stop and start loop correctly", async () => {
+  it("should stop and start loop correctly", () => {
     const mockedRaf = createMockRaf()
     requestAnimationMock.mockImplementation(mockedRaf.raf)
     cancelAnimationFrameMock.mockImplementation(mockedRaf.cancel)
@@ -31,27 +31,27 @@ describe("mock-raf", () => {
 
     expect(cancelAnimationFrameMock).toBeCalledTimes(1)
 
-    await act(async () => {
+    act(() => {
       mockedRaf.step({ count: 5, time: 101 })
     })
 
-    await act(async () => {
+    act(() => {
       result.current.stopLoop()
     })
 
-    await act(async () => {
+    act(() => {
       mockedRaf.step({ count: 5, time: 101 })
     })
 
     expect(mockCallback).toBeCalledTimes(5)
     expect(result.current.isPlayingLoop).toEqual(false)
 
-    await act(async () => {
+    act(() => {
       result.current.startLoop()
     })
 
     MockDate.set(10900)
-    await act(async () => {
+    act(() => {
       mockedRaf.step({ count: 5, time: 101 })
     })
 
@@ -60,7 +60,7 @@ describe("mock-raf", () => {
 
     unmount()
 
-    await act(async () => {
+    act(() => {
       mockedRaf.step({ count: 5, time: 101 })
     })
 
@@ -68,7 +68,7 @@ describe("mock-raf", () => {
     expect(result.current.isPlayingLoop).toEqual(true)
   })
 
-  it("should call passed function at passed speed", async () => {
+  it("should call passed function at passed speed", () => {
     const mockedRaf = createMockRaf()
     requestAnimationMock.mockImplementation(mockedRaf.raf)
     cancelAnimationFrameMock.mockImplementation(mockedRaf.cancel)
@@ -77,14 +77,14 @@ describe("mock-raf", () => {
 
     renderHook(() => useGameLoop({ logicToLoop: mockCallback, speed: 500 }))
 
-    await act(async () => {
+    act(() => {
       mockedRaf.step({ count: 6, time: 255 })
     })
 
     expect(mockCallback).toBeCalledTimes(3)
   })
 
-  it("should return secondsPassed", async () => {
+  it("should return secondsPassed", () => {
     const mockedRaf = createMockRaf()
     requestAnimationMock.mockImplementation(mockedRaf.raf)
     cancelAnimationFrameMock.mockImplementation(mockedRaf.cancel)
@@ -98,7 +98,7 @@ describe("mock-raf", () => {
       useGameLoop({ logicToLoop: mockCallback, speed: 1000 })
     )
 
-    await act(async () => {
+    act(() => {
       mockedRaf.step({ count: 20, time: 501 })
       MockDate.set(mockedRaf.now() + mockStartTime)
       mockedRaf.step({ count: 1, time: 1 })
@@ -107,7 +107,7 @@ describe("mock-raf", () => {
     expect(result.current.secondsPassed).toEqual(10)
   })
 
-  it("should cancelAnimationFrame on unmount", async () => {
+  it("should cancelAnimationFrame on unmount", () => {
     const mockedRaf = createMockRaf()
     requestAnimationMock.mockImplementation(mockedRaf.raf)
     cancelAnimationFrameMock.mockImplementation(mockedRaf.cancel)
@@ -133,7 +133,7 @@ describe("mock-raf", () => {
 
     expect(cancelAnimationFrameMock).toBeCalledTimes(2)
 
-    await act(async () => {
+    act(() => {
       mockedRaf.step({ count: 10, time: 501 })
     })
 
