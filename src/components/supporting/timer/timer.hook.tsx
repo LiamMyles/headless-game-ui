@@ -39,9 +39,7 @@ export function useTimer({
       }
       const elapsedTime = nowTimeMs - timeMsSinceLastUpdate.current
 
-      const shouldUpdateTimer = nowTimeMs >= timeMsSinceLastUpdate.current + 500
-
-      if (shouldUpdateTimer) {
+      if (elapsedTime >= 500) {
         totalElapsedTimeMs.current = elapsedTime + totalElapsedTimeMs.current
         timeMsSinceLastUpdate.current = nowTimeMs
         const sum = Math.max(
