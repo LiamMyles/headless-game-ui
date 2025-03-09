@@ -258,6 +258,36 @@ describe("Timer", () => {
       })
     })
 
-    it.todo("should reset when seconds are changed")
+    it("should reset when seconds are changed", async () => {
+      const mockedRaf = getMockedRaf()
+
+      const { result, rerender } = renderHook(
+        ({ durationSeconds }) => useTimer({ durationSeconds: durationSeconds }),
+        { initialProps: { durationSeconds: 10 } }
+      )
+
+      expect(result.current.timeLeft).toEqual(10000)
+
+      mockedRaf.step({ time: 1000 })
+      vi.advanceTimersByTime(1000)
+
+      await waitFor(() => {
+        expect(result.current.timeLeft).toEqual(9000)
+      })
+
+      rerender({ durationSeconds: 5 })
+
+      await waitFor(() => {
+        expect(result.current.timeLeft).toEqual(5000)
+      })
+
+      mockedRaf.step({ count: 10, time: 500 })
+      vi.advanceTimersByTime(5000)
+
+      await waitFor(() => {
+        expect(result.current.timeLeft).toEqual(0)
+        expect(result.current.isFinished).toEqual(true)
+      })
+    })
   })
 })

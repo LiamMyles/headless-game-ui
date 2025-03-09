@@ -21,6 +21,16 @@ export function useTimer({
   const timeMsSinceLastUpdate = useRef<DOMHighResTimeStamp>(0)
   const totalElapsedTimeMs = useRef<DOMHighResTimeStamp>(0)
   const durationMs = 1000 * durationSeconds
+  const lastCapturedSeconds = useRef(durationSeconds)
+
+  useEffect(() => {
+    if (lastCapturedSeconds.current !== durationSeconds) {
+      totalElapsedTimeMs.current = 0
+      setTimeLeft(durationMs)
+    } else {
+      lastCapturedSeconds.current = durationSeconds
+    }
+  }, [durationMs, durationSeconds])
 
   const timerCheck = useCallback(
     (nowTimeMs: DOMHighResTimeStamp, firstRun: boolean) => {
