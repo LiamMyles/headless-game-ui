@@ -8,6 +8,7 @@ interface useTimerProps {
 interface useTimerReturn {
   isFinished: boolean
   timeLeft: DOMHighResTimeStamp
+  reset: () => void
 }
 
 export function useTimer({
@@ -22,15 +23,6 @@ export function useTimer({
   const totalElapsedTimeMs = useRef<DOMHighResTimeStamp>(0)
   const durationMs = 1000 * durationSeconds
   const lastCapturedSeconds = useRef(durationSeconds)
-
-  useEffect(() => {
-    if (lastCapturedSeconds.current !== durationSeconds) {
-      totalElapsedTimeMs.current = 0
-      setTimeLeft(durationMs)
-    } else {
-      lastCapturedSeconds.current = durationSeconds
-    }
-  }, [durationMs, durationSeconds])
 
   const timerCheck = useCallback(
     (nowTimeMs: DOMHighResTimeStamp, firstRun: boolean) => {
@@ -63,6 +55,21 @@ export function useTimer({
     [durationMs]
   )
 
+  /**
+   * Update relevant values when durationSeconds changes.
+   */
+  useEffect(() => {
+    if (lastCapturedSeconds.current !== durationSeconds) {
+      totalElapsedTimeMs.current = 0
+      setTimeLeft(durationMs)
+    } else {
+      lastCapturedSeconds.current = durationSeconds
+    }
+  }, [durationMs, durationSeconds])
+
+  /**
+   * Update based on isRunning
+   */
   useEffect(() => {
     if (isRunning) {
       timerCheck(performance.now(), true)
@@ -74,5 +81,15 @@ export function useTimer({
     }
   }, [isRunning, timerCheck])
 
-  return { isFinished: timerFinished, timeLeft: timeLeft }
+  function reset() {
+    setTimeLeft(durationSeconds * 1000)
+    setTimerFinished(false)
+    cancelAnimationFrame(requestedAnimationId.current)
+    totalElapsedTimeMs.current = 0
+    if (isRunning) {
+      timerCheck(performance.now(), true)
+    }
+  }
+
+  return { isFinished: timerFinished, timeLeft, reset }
 }

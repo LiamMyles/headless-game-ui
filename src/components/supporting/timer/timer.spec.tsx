@@ -290,6 +290,105 @@ describe("Timer", () => {
       })
     })
 
-    it.todo("should reset when returned reset function is called")
+    it("should reset when returned reset function is called", async () => {
+      const mockedRaf = getMockedRaf()
+
+      const { result } = renderHook(() => useTimer({ durationSeconds: 2 }))
+
+      expect(result.current.isFinished).toBe(false)
+
+      mockedRaf.step({ count: 20, time: 100 })
+      vi.advanceTimersByTime(2000)
+
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(true)
+        expect(result.current.timeLeft).toBe(0)
+      })
+
+      result.current.reset()
+
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(false)
+        expect(result.current.timeLeft).toBe(2000)
+      })
+
+      mockedRaf.step({ count: 10, time: 100 })
+      vi.advanceTimersByTime(1000)
+
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(false)
+        expect(result.current.timeLeft).toBe(1000)
+      })
+
+      mockedRaf.step({ count: 10, time: 100 })
+      vi.advanceTimersByTime(1000)
+
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(true)
+        expect(result.current.timeLeft).toBe(0)
+      })
+    })
+
+    it("should reset even while paused after timer finishes", async () => {
+      const mockedRaf = getMockedRaf()
+
+      const { result, rerender } = renderHook(
+        ({ isRunning }) =>
+          useTimer({ durationSeconds: 2, isRunning: isRunning }),
+        { initialProps: { isRunning: true } }
+      )
+
+      expect(result.current.isFinished).toBe(false)
+
+      mockedRaf.step({ count: 20, time: 100 })
+      vi.advanceTimersByTime(2000)
+
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(true)
+        expect(result.current.timeLeft).toBe(0)
+      })
+
+      rerender({ isRunning: false })
+      result.current.reset()
+
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(false)
+        expect(result.current.timeLeft).toBe(2000)
+      })
+
+      mockedRaf.step({ count: 10, time: 100 })
+      vi.advanceTimersByTime(1000)
+
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(false)
+        expect(result.current.timeLeft).toBe(2000)
+      })
+
+      mockedRaf.step({ count: 10, time: 100 })
+      vi.advanceTimersByTime(1000)
+
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(false)
+        expect(result.current.timeLeft).toBe(2000)
+      })
+      
+      rerender({ isRunning: true })
+      
+      mockedRaf.step({ count: 10, time: 100 })
+      vi.advanceTimersByTime(1000)
+      
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(false)
+        expect(result.current.timeLeft).toBe(1000)
+      })
+      
+      mockedRaf.step({ count: 10, time: 100 })
+      vi.advanceTimersByTime(1000)
+
+      await waitFor(() => {
+        expect(result.current.isFinished).toBe(true)
+        expect(result.current.timeLeft).toBe(0)
+      })
+    })
   })
 })
