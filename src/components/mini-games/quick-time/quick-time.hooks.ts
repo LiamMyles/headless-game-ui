@@ -1,4 +1,5 @@
 import { type Reducer, useReducer, useEffect } from "react"
+import { useTimer } from "../../supporting/timer/timer.hook"
 
 type QuickTimeGameStates = "FAIL" | "PASS" | "PLAYING"
 
@@ -90,9 +91,21 @@ export const quickTimeReducer: Reducer<QuickTimeState, QuickTimeActions> = (
   }
 }
 
-export function useQuickTimeLogic(): QuickTimeState {
+interface useQuickTimeLogicReturn {
+  quickTimeState: QuickTimeState
+  timeLeft: number
+}
+
+export function useQuickTimeLogic(): useQuickTimeLogicReturn {
   const [state, dispatch] = useReducer(quickTimeReducer, initialState)
+  const { isFinished, timeLeft, reset } = useTimer({ durationSeconds: 3 })
   const currentGameState = state.gameState
+
+  useEffect(() => {
+    if (isFinished) {
+      dispatch({ type: "fail" })
+    }
+  }, [isFinished])
 
   useEffect(() => {
     function downHandler({ key }: KeyboardEvent) {
@@ -103,11 +116,13 @@ export function useQuickTimeLogic(): QuickTimeState {
             type: "shuffle",
             payload: Math.floor(Math.random() * 100) + 1,
           })
+          reset()
           break
         }
         default: {
-          dispatch({ payload: key, type: "input" })
-          break
+          if (currentGameState === "PLAYING") {
+            dispatch({ payload: key, type: "input" })
+          }
         }
       }
     }
@@ -117,7 +132,7 @@ export function useQuickTimeLogic(): QuickTimeState {
     return () => {
       window.removeEventListener("keydown", downHandler)
     }
-  }, [])
+  }, [currentGameState, reset])
 
   useEffect(() => {
     if (currentGameState === "PASS") {
@@ -126,7 +141,9 @@ export function useQuickTimeLogic(): QuickTimeState {
         type: "shuffle",
         payload: Math.floor(Math.random() * 100) + 1,
       })
+      reset()
     }
-  }, [currentGameState])
-  return state
+  }, [currentGameState, reset])
+
+  return { quickTimeState: state, timeLeft }
 }

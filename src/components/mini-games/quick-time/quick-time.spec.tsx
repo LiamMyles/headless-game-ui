@@ -243,5 +243,12 @@ describe("Quick Time Component", () => {
         })
       })
     })
+    describe("User Interaction", () => {
+      it.todo("should capture all keyboard input while gameState is PLAYING")
+      it.todo("should trigger a fail when timer expires")
+      it.todo("should pause timer on success")
+      it.todo('should favour user successful input over time on collision')
+      it.todo("should reset and shuffle when Enter is pressed")
+    })
   })
 })

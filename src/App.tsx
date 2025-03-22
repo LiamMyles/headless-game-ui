@@ -1,11 +1,9 @@
 import "./App.css"
 import { QuickTime } from "./components/mini-games/quick-time"
-import { Timer } from "./components/supporting/timer"
 
 function App() {
   return (
-    <div>
-      <Timer />
+    <div className="border border-amber-200 rounded-2xl p-8">
       <QuickTime />
     </div>
   )
