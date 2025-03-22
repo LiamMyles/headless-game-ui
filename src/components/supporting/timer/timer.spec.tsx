@@ -289,5 +289,7 @@ describe("Timer", () => {
         expect(result.current.isFinished).toEqual(true)
       })
     })
+
+    it.todo("should reset when returned reset function is called")
   })
 })

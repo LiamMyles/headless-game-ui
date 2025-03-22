@@ -7,7 +7,7 @@ interface useTimerProps {
 
 interface useTimerReturn {
   isFinished: boolean
-  timeLeft: number
+  timeLeft: DOMHighResTimeStamp
 }
 
 export function useTimer({
