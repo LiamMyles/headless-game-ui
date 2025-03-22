@@ -17,6 +17,7 @@ const initialState: QuickTimeState = {
 export type QuickTimeActions =
   | { type: "input"; payload: string }
   | { type: "reset" }
+  | { type: "fail" }
   | { type: "shuffle"; payload: number }
 
 export const quickTimeReducer: Reducer<QuickTimeState, QuickTimeActions> = (
@@ -76,6 +77,15 @@ export const quickTimeReducer: Reducer<QuickTimeState, QuickTimeActions> = (
         ...state,
         sequenceToMatch: sequenceToShuffle,
       }
+    }
+    case "fail": {
+      return {
+        ...state,
+        gameState: "FAIL",
+      }
+    }
+    default: {
+      return state
     }
   }
 }

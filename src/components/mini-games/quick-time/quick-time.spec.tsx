@@ -208,6 +208,40 @@ describe("Quick Time Component", () => {
           expect(results.sequenceToMatch).toEqual(expectedShuffleResults)
         })
       })
+      describe("Fail Action", () => {
+        it("should trigger a fail state when called", () => {
+          const initialSate: QuickTimeState = {
+            sequenceToMatch: [
+              "ArrowDown",
+              "ArrowUp",
+              "ArrowRight",
+              "ArrowLeft",
+            ],
+            inputSequence: [],
+            gameState: "PLAYING",
+          }
+
+          const action: QuickTimeActions = {
+            type: "fail",
+          }
+
+          const results = quickTimeReducer(initialSate, action)
+
+          const expectedFailState: QuickTimeState = {
+            sequenceToMatch: [
+              "ArrowDown",
+              "ArrowUp",
+              "ArrowRight",
+              "ArrowLeft",
+            ],
+            inputSequence: [],
+            gameState: "FAIL",
+          }
+
+          expect(results.gameState).toEqual("FAIL")
+          expect(results).toEqual(expectedFailState)
+        })
+      })
     })
   })
 })
