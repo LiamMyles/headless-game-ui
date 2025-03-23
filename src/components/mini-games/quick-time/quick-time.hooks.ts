@@ -1,5 +1,6 @@
-import { type Reducer, useReducer, useEffect } from "react"
+import { type Reducer, useReducer, useEffect, useState } from "react"
 import { useTimer } from "../../supporting/timer/timer.hook"
+import { randomShuffleSeed } from "./quick-time.utility"
 
 type QuickTimeGameStates = "FAIL" | "PASS" | "PLAYING"
 
@@ -97,8 +98,12 @@ interface useQuickTimeLogicReturn {
 }
 
 export function useQuickTimeLogic(): useQuickTimeLogicReturn {
+  const [isRunning, setIsRunning] = useState(true)
   const [state, dispatch] = useReducer(quickTimeReducer, initialState)
-  const { isFinished, timeLeft, reset } = useTimer({ durationSeconds: 3 })
+  const { isFinished, timeLeft, reset } = useTimer({
+    durationSeconds: 3,
+    isRunning,
+  })
   const currentGameState = state.gameState
 
   useEffect(() => {
@@ -114,8 +119,9 @@ export function useQuickTimeLogic(): useQuickTimeLogicReturn {
           dispatch({ type: "reset" })
           dispatch({
             type: "shuffle",
-            payload: Math.floor(Math.random() * 100) + 1,
+            payload: randomShuffleSeed(),
           })
+          setIsRunning(true)
           reset()
           break
         }
@@ -136,12 +142,7 @@ export function useQuickTimeLogic(): useQuickTimeLogicReturn {
 
   useEffect(() => {
     if (currentGameState === "PASS") {
-      dispatch({ type: "reset" })
-      dispatch({
-        type: "shuffle",
-        payload: Math.floor(Math.random() * 100) + 1,
-      })
-      reset()
+      setIsRunning(false)
     }
   }, [currentGameState, reset])
 

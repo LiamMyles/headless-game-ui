@@ -1,10 +1,26 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
+
+import { renderHook, waitFor } from "@testing-library/react"
+import { userEvent } from "@testing-library/user-event"
 
 import {
   quickTimeReducer,
-  type QuickTimeActions,
+  useQuickTimeLogic,
   type QuickTimeState,
+  type QuickTimeActions,
 } from "./quick-time.hooks"
+import { getMockedRaf } from "../../../test-helpers/get-mocked-raf"
+
+vi.mock(import("./quick-time.utility"), async (importOriginals) => {
+  const mod = await importOriginals()
+  return {
+    ...mod,
+    //Remove randomness from function
+    randomShuffleSeed: vi.fn(() => {
+      return 42
+    }),
+  }
+})
 
 describe("Quick Time Component", () => {
   describe("useQuickTimeLogic", () => {
@@ -242,13 +258,161 @@ describe("Quick Time Component", () => {
           expect(results).toEqual(expectedFailState)
         })
       })
+      describe("Faulty Action", () => {
+        it("should return existing state", () => {
+          const initialSate: QuickTimeState = {
+            sequenceToMatch: [
+              "ArrowDown",
+              "ArrowUp",
+              "ArrowRight",
+              "ArrowLeft",
+            ],
+            inputSequence: [],
+            gameState: "PLAYING",
+          }
+
+          const action = {
+            type: "apples",
+          }
+
+          //@ts-expect-error asserting impossible case is handled
+          const results = quickTimeReducer(initialSate, action)
+
+          expect(results).not.toBeUndefined()
+        })
+      })
     })
-    describe("User Interaction", () => {
-      it.todo("should capture all keyboard input while gameState is PLAYING")
-      it.todo("should trigger a fail when timer expires")
-      it.todo("should pause timer on success")
-      it.todo('should favour user successful input over time on collision')
-      it.todo("should reset and shuffle when Enter is pressed")
+    describe("Hook", () => {
+      beforeEach(() => {
+        vi.useFakeTimers()
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+      })
+      it("should capture successful user input sequence", async () => {
+        getMockedRaf()
+
+        const { result } = renderHook(() => useQuickTimeLogic())
+
+        expect(result.current.quickTimeState.gameState).toEqual("PLAYING")
+
+        const inputPromises = result.current.quickTimeState.sequenceToMatch.map(
+          (input) => {
+            return userEvent.keyboard(`{${input}}`)
+          }
+        )
+
+        await Promise.allSettled(inputPromises)
+
+        expect(result.current.quickTimeState.gameState).toEqual("PASS")
+      })
+      it("should trigger a fail when timer expires", async () => {
+        const mockedRaf = getMockedRaf()
+
+        const { result } = renderHook(() => useQuickTimeLogic())
+
+        mockedRaf.step({ count: 20, time: 100 })
+        vi.advanceTimersByTime(2000)
+
+        await waitFor(() => {
+          expect(result.current.quickTimeState.gameState).toEqual("PLAYING")
+          expect(result.current.timeLeft).toEqual(1000)
+        })
+
+        mockedRaf.step({ count: 10, time: 100 })
+        vi.advanceTimersByTime(1000)
+
+        await waitFor(() => {
+          expect(result.current.quickTimeState.gameState).toEqual("FAIL")
+          expect(result.current.timeLeft).toEqual(0)
+        })
+      })
+      it("should pause timer on success", async () => {
+        const mockedRaf = getMockedRaf()
+
+        const { result } = renderHook(() => useQuickTimeLogic())
+
+        expect(result.current.quickTimeState.gameState).toEqual("PLAYING")
+
+        mockedRaf.step({ count: 20, time: 100 })
+        vi.advanceTimersByTime(2000)
+
+        await waitFor(() => {
+          expect(result.current.timeLeft).toEqual(1000)
+          expect(result.current.quickTimeState.gameState).toEqual("PLAYING")
+        })
+
+        const inputPromises = result.current.quickTimeState.sequenceToMatch.map(
+          (input) => {
+            return userEvent.keyboard(`{${input}}`)
+          }
+        )
+
+        await Promise.allSettled(inputPromises)
+
+        mockedRaf.step({ count: 20, time: 100 })
+        vi.advanceTimersByTime(2000)
+
+        await waitFor(() => {
+          expect(result.current.timeLeft).toEqual(1000)
+          expect(result.current.quickTimeState.gameState).toEqual("PASS")
+        })
+      })
+      it("should reset and shuffle when Enter is pressed", async () => {
+        const mockedRaf = getMockedRaf()
+
+        const { result } = renderHook(() => useQuickTimeLogic())
+
+        expect(result.current.quickTimeState.gameState).toEqual("PLAYING")
+
+        mockedRaf.step({ count: 20, time: 100 })
+        vi.advanceTimersByTime(2000)
+
+        await waitFor(() => {
+          expect(result.current.timeLeft).toEqual(1000)
+          expect(result.current.quickTimeState.gameState).toEqual("PLAYING")
+        })
+
+        const partialUserInputPromises =
+          result.current.quickTimeState.sequenceToMatch
+            .slice(0, 3)
+            .map((input) => {
+              return userEvent.keyboard(`{${input}}`)
+            })
+
+        await Promise.allSettled(partialUserInputPromises)
+
+        expect(result.current).toEqual({
+          quickTimeState: {
+            sequenceToMatch: [
+              "ArrowDown",
+              "ArrowUp",
+              "ArrowRight",
+              "ArrowLeft",
+            ],
+            inputSequence: ["ArrowDown", "ArrowUp", "ArrowRight"],
+            gameState: "PLAYING",
+          },
+          timeLeft: 1000,
+        })
+
+        await userEvent.keyboard("{Enter}")
+
+        expect(result.current).toEqual({
+          quickTimeState: {
+            sequenceToMatch: [
+              "ArrowUp",
+              "ArrowRight",
+              "ArrowDown",
+              "ArrowLeft",
+            ],
+            inputSequence: [],
+            gameState: "PLAYING",
+          },
+          timeLeft: 3000,
+        })
+      })
     })
   })
 })

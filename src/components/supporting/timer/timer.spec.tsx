@@ -1,26 +1,9 @@
-import {
-  afterAll,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { renderHook, waitFor } from "@testing-library/react"
 
-import createMockRaf from "mock-raf"
 import { useTimer } from "./timer.hook"
-
-function getMockedRaf(): createMockRaf.Creator {
-  const mockedRaf = createMockRaf()
-
-  vi.spyOn(window, "requestAnimationFrame").mockImplementation(mockedRaf.raf)
-  vi.spyOn(window, "cancelAnimationFrame").mockImplementation(mockedRaf.cancel)
-
-  return mockedRaf
-}
+import { getMockedRaf } from "../../../test-helpers/get-mocked-raf"
 
 describe("Timer", () => {
   describe("Hook", () => {
@@ -29,11 +12,7 @@ describe("Timer", () => {
     })
 
     afterEach(() => {
-      vi.clearAllMocks()
       vi.useRealTimers()
-    })
-    afterAll(() => {
-      vi.restoreAllMocks()
     })
 
     it("should return true after counting down from 1 second", async () => {
@@ -371,17 +350,17 @@ describe("Timer", () => {
         expect(result.current.isFinished).toBe(false)
         expect(result.current.timeLeft).toBe(2000)
       })
-      
+
       rerender({ isRunning: true })
-      
+
       mockedRaf.step({ count: 10, time: 100 })
       vi.advanceTimersByTime(1000)
-      
+
       await waitFor(() => {
         expect(result.current.isFinished).toBe(false)
         expect(result.current.timeLeft).toBe(1000)
       })
-      
+
       mockedRaf.step({ count: 10, time: 100 })
       vi.advanceTimersByTime(1000)
 
