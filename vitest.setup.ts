@@ -1,7 +1,11 @@
-import { beforeAll } from "vitest"
+import { afterEach, beforeAll } from "vitest"
 
-import { configure } from "@testing-library/react"
+import { cleanup, configure } from "@testing-library/react"
 import "@testing-library/jest-dom/vitest"
+
+afterEach(() => {
+  cleanup()
+})
 
 beforeAll(() => {
   configure({ reactStrictMode: true })
