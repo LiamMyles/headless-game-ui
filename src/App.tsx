@@ -1,11 +1,12 @@
-import "./App.css"
 import { QuickTime } from "./components/mini-games/quick-time"
 
 function App() {
   return (
-    <div className="border border-amber-200 rounded-2xl p-8">
-      <QuickTime />
-    </div>
+    <main className="w-full min-h-dvh bg-slate-200 p-5 flex justify-center items-center">
+      <div className="border border-amber-200 bg-slate-50 rounded-2xl p-8">
+        <QuickTime />
+      </div>
+    </main>
   )
 }
 
