@@ -1,5 +1,5 @@
 import { type Reducer, useReducer, useEffect, useState } from "react"
-import { useTimer } from "../../supporting/timer/timer.hook"
+import { useTimer } from "../../supporting/timer"
 import { randomShuffleSeed } from "./quick-time.utility"
 
 type QuickTimeGameStates = "FAIL" | "PASS" | "PLAYING"

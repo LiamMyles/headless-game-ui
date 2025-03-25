@@ -12,6 +12,10 @@ export default mergeConfig(
         toFake: ["performance"],
       },
       setupFiles: "./vitest.setup.ts",
+      coverage: {
+        include: ["src/*"],
+        exclude: ["src/confetti", "**/*.d.ts"],
+      },
     },
   })
 )
