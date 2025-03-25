@@ -359,6 +359,35 @@ describe("Quick Time Logic", () => {
           expect(result.current.quickTimeState.gameState).toEqual("PASS")
         })
       })
+
+      it("should pause timer on early fail", async () => {
+        const mockedRaf = getMockedRaf()
+
+        const { result } = renderHook(() => useQuickTimeLogic())
+
+        expect(result.current.quickTimeState.gameState).toEqual("PLAYING")
+
+        mockedRaf.step({ count: 20, time: 100 })
+        vi.advanceTimersByTime(2000)
+
+        await waitFor(() => {
+          expect(result.current.timeLeft).toEqual(1000)
+          expect(result.current.quickTimeState.gameState).toEqual("PLAYING")
+        })
+
+        const failingInput = result.current.quickTimeState.sequenceToMatch[2]
+
+        await userEvent.keyboard(`{${failingInput}}`)
+
+        mockedRaf.step({ count: 20, time: 100 })
+        vi.advanceTimersByTime(2000)
+
+        await waitFor(() => {
+          expect(result.current.timeLeft).toEqual(1000)
+          expect(result.current.quickTimeState.gameState).toEqual("FAIL")
+        })
+      })
+
       it("should reset and shuffle when Enter is pressed", async () => {
         const mockedRaf = getMockedRaf()
 

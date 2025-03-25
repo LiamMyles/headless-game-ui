@@ -141,7 +141,7 @@ export function useQuickTimeLogic(): useQuickTimeLogicReturn {
   }, [currentGameState, reset])
 
   useEffect(() => {
-    if (currentGameState === "PASS") {
+    if (currentGameState === "PASS" || currentGameState === "FAIL") {
       setIsRunning(false)
     }
   }, [currentGameState, reset])
