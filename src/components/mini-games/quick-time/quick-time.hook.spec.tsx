@@ -22,7 +22,7 @@ vi.mock(import("./quick-time.utility"), async (importOriginals) => {
   }
 })
 
-describe("Quick Time Component", () => {
+describe("Quick Time Logic", () => {
   describe("useQuickTimeLogic", () => {
     describe("Reducer", () => {
       describe("Input Action", () => {
