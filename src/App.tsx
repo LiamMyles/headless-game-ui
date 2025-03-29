@@ -2,8 +2,8 @@ import { QuickTime } from "./components/mini-games/quick-time"
 
 function App() {
   return (
-    <main className="w-full min-h-dvh bg-slate-200 p-5 flex justify-center items-center">
-      <div className="border border-amber-200 bg-slate-50 rounded-2xl p-8">
+    <main className="flex min-h-dvh w-full items-center justify-center bg-slate-200 p-5">
+      <div className="rounded-2xl border border-amber-200 bg-slate-50 p-8">
         <QuickTime />
       </div>
     </main>

@@ -14,27 +14,27 @@ export function QuickTime(): React.ReactNode {
   return (
     <div>
       <div>
-        <h1 className="text-4xl font-bold w-max m-auto mb-2">
+        <h1 className="m-auto mb-2 w-max text-4xl font-bold">
           Quick Time Game
         </h1>
         <div className="mb-4">
           {quickTimeState.gameState === "PLAYING" && (
-            <h2 className="font-bold text-slate-700 bg-white border border-slate-800 block w-max m-auto p-1 my-2 rounded-2xl">
+            <h2 className="m-auto my-2 block w-max rounded-2xl border border-slate-800 bg-white p-1 font-bold text-slate-700">
               PLAYING
             </h2>
           )}
           {quickTimeState.gameState === "FAIL" && (
-            <h2 className="font-bold text-rose-700 bg-white border border-slate-800 block w-max m-auto p-1 my-2 rounded-2xl">
+            <h2 className="m-auto my-2 block w-max rounded-2xl border border-slate-800 bg-white p-1 font-bold text-rose-700">
               YOU FAIL
             </h2>
           )}
           {quickTimeState.gameState === "PASS" && (
-            <h2 className="font-bold text-green-700 bg-white border border-slate-800 block w-max m-auto p-1 my-2 rounded-2xl">
+            <h2 className="m-auto my-2 block w-max rounded-2xl border border-slate-800 bg-white p-1 font-bold text-green-700">
               YOU WIN!
             </h2>
           )}
         </div>
-        <ul className="list-none flex gap-2 m-auto w-min">
+        <ul className="m-auto flex w-min list-none gap-2">
           {quickTimeState.sequenceToMatch.map((key, index) => {
             const currentInput = quickTimeState.inputSequence[index]
             const previousInput = quickTimeState.inputSequence[index - 1]
@@ -60,10 +60,10 @@ export function QuickTime(): React.ReactNode {
           })}
         </ul>
 
-        <div className="mt-4 m-auto w-min flex items-center flex-col gap-2">
+        <div className="m-auto mt-4 flex w-min flex-col items-center gap-2">
           <label htmlFor="progress-bar">Timer</label>
           <progress
-            className="[&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-bar]:bg-slate-300 [&::-webkit-progress-value]:bg-violet-400 [&::-moz-progress-bar]:bg-violet-400 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-100 [&::-webkit-progress-value]:ease-in [&::-webkit-progress-bar]:overflow-hidden"
+            className="[&::-moz-progress-bar]:bg-violet-400 [&::-webkit-progress-bar]:overflow-hidden [&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-bar]:bg-slate-300 [&::-webkit-progress-value]:rounded-lg [&::-webkit-progress-value]:bg-violet-400 [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-100 [&::-webkit-progress-value]:ease-in"
             id="progress-bar"
             value={timeLeft}
             max={3000}
@@ -88,7 +88,7 @@ function QuickTimeKey({
     return (
       <li>
         <div
-          className="text-blue-800 border border-blue-200 p-1 rounded-md font-bold"
+          className="rounded-md border border-blue-200 p-1 font-bold text-blue-800"
           role="img"
           aria-label={`current key ${expectedKey}`}
         >
@@ -100,7 +100,7 @@ function QuickTimeKey({
     return (
       <li>
         <div
-          className="text-green-800 border border-green-200 p-1 rounded-md"
+          className="rounded-md border border-green-200 p-1 text-green-800"
           role="img"
           aria-label={`successful key ${expectedKey}`}
         >
@@ -112,7 +112,7 @@ function QuickTimeKey({
     return (
       <li>
         <div
-          className="text-red-800 border border-red-200 p-1 rounded-md"
+          className="rounded-md border border-red-200 p-1 text-red-800"
           role="img"
           aria-label={`failed on key ${expectedKey}`}
         >
@@ -124,7 +124,7 @@ function QuickTimeKey({
     return (
       <li>
         <div
-          className="text-slate-800 border border-slate-200 p-1 rounded-md"
+          className="rounded-md border border-slate-200 p-1 text-slate-800"
           role="img"
           aria-label={`upcoming key ${expectedKey}`}
         >
