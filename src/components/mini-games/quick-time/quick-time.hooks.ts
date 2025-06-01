@@ -2,7 +2,7 @@ import { type Reducer, useReducer, useEffect, useState } from "react"
 import { useTimer } from "../../supporting/timer"
 import { randomShuffleSeed } from "./quick-time.utility"
 
-type QuickTimeGameStates = "FAIL" | "PASS" | "PLAYING"
+export type QuickTimeGameStates = "FAIL" | "PASS" | "PLAYING"
 
 export interface QuickTimeState {
   sequenceToMatch: string[]
@@ -92,7 +92,7 @@ export const quickTimeReducer: Reducer<QuickTimeState, QuickTimeActions> = (
   }
 }
 
-interface useQuickTimeLogicReturn {
+export interface useQuickTimeLogicReturn {
   quickTimeState: QuickTimeState
   timeLeft: number
 }
